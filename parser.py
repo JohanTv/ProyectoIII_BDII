@@ -17,7 +17,7 @@ writer.writerow(header)
 
 lock = threading.Lock()
     
-def processing(images_folders):
+def processing(images_folders = []):
     global writer    
     for images_folder in images_folders:
         images = os.listdir(images_path + images_folder + '/')
@@ -40,7 +40,8 @@ def execute():
     for i in range(nthreads):
         start = i * step
         end = min((i+1)*step, size)
-        thread = threading.Thread(target=processing, args=(images_folders[start:end]))
+        v = images_folders[start:end]
+        thread = threading.Thread(target=processing, args=(v,))
         threads.append(thread)
     
     for i in range(nthreads):
