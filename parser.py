@@ -7,8 +7,7 @@ import math
 
 images_path = "./images/"
 images_folders = os.listdir(images_path)
-print("Cantidad de carpetas a procesar: " + str(len(images_folders)))
-n = 1
+
 csvfile = open("dataset.csv", 'w', encoding='UTF8', newline='')
 writer = csv.writer(csvfile)
 header = [i for i in range(1, 129)]
