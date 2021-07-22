@@ -6,7 +6,7 @@ output:
 ---
 
 ```{r}
-df = read.csv("./data/datasetv2.csv", header = TRUE, sep = ",")
+df = read.csv("../data/datasetv2.csv", header = TRUE, sep = ",")
 ```
 
 ```{r}
@@ -36,7 +36,7 @@ genDistancias<-function(data, N){
 
 Generamos 5000 distancias aleatorias y procedemos a visualizar los resultados en un histograma,
 ```{r}
-D<-genDistancias(df[, 1:78], 28000)
+D<-genDistancias(df[, 1:78], 5000)
 #generamos el histograma
 H<-hist(D, xlab = "Distancia", breaks = 20)
 ```
