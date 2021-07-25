@@ -1,3 +1,4 @@
+from PIL.Image import new
 from rtree import index
 import face_recognition
 import pickle
@@ -6,6 +7,9 @@ from datetime import datetime
 import numpy as np
 import os
 from queue import PriorityQueue
+import json
+import ast
+import sys
 
 scaler_path = "./bin/scaler.dat"
 pca_path = "./bin/pca.dat"
@@ -97,21 +101,27 @@ def searchKNN_sequential(image_path, k):
     return result
 
 def parser(prev_result):
-    result = '{'
+    result = []
     count = 1
     for elem in prev_result:
-        if count != len(prev_result):
-            result += '{"url": '+'"'+elem+'"'+'},'
-        else:
-            result += '{"url": '+'"'+elem+'"'+'}'
-        count += 1
-
-    result += '}'
+        result.append("pythonCode/images/"+elem)
+        count+=1
 
     return result
 
+def transform(input):
+    x = input.split(" ")
+    new_input = ""
+    for i in x:
+        i.capitalize()
+        new_input = new_input + i + '_'
 
-image_path = "test/Roger_Moore_0004.jpg"
+    return new_input[:-1]
+
+#print("python: " + str(sys.argv[1]))
+str_input = transform(str(sys.argv[1]))
+image_path = "images/"+ str_input + "/" + str_input + "_0001.jpg" #./imagen/obama/obama_0001.jpg
+#print(image_path)
 #result = knearest(image_path, 8)
 #result = searchKNN_sequential(image_path, 8)
 start_time = datetime.now() 
@@ -127,4 +137,8 @@ time_elapsed = datetime.now() - start_time
 # os.remove('bin_test/rtree_index.dat')
 # os.remove('bin_test/rtree_index.idx')
 jsonResult = parser(result)
-print(jsonResult)
+#print(jsonResult)
+
+#result_data = json.loads(jsonResult)
+with open('./result_db.json', 'w') as file:
+    json.dump(jsonResult, file)
