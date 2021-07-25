@@ -96,6 +96,21 @@ def searchKNN_sequential(image_path, k):
         i -= 1
     return result
 
+def parser(prev_result):
+    result = '{'
+    count = 1
+    for elem in prev_result:
+        if count != len(prev_result):
+            result += '{"url": '+'"'+elem+'"'+'},'
+        else:
+            result += '{"url": '+'"'+elem+'"'+'}'
+        count += 1
+
+    result += '}'
+
+    return result
+
+
 image_path = "test/Roger_Moore_0004.jpg"
 #result = knearest(image_path, 8)
 #result = searchKNN_sequential(image_path, 8)
@@ -103,12 +118,13 @@ start_time = datetime.now()
 #result = range_seach(image_path, 10) # radio -> [9, 11] recomendable
 result = knearest(image_path, 8)
 time_elapsed = datetime.now() - start_time 
-print('Time elapsed (hh:mm:ss.ms) {}'.format(time_elapsed))
+#print('Time elapsed (hh:mm:ss.ms) {}'.format(time_elapsed))
 start_time = datetime.now() 
 result = searchKNN_sequential(image_path, 8)
 #result = range_seach(image_path, 10) # radio -> [9, 11] recomendable
 time_elapsed = datetime.now() - start_time 
-print('Time elapsed (hh:mm:ss.ms) {}'.format(time_elapsed))
+#print('Time elapsed (hh:mm:ss.ms) {}'.format(time_elapsed))
 # os.remove('bin_test/rtree_index.dat')
 # os.remove('bin_test/rtree_index.idx')
-print(result)
+jsonResult = parser(result)
+print(jsonResult)
