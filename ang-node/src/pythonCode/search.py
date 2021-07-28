@@ -11,9 +11,10 @@ import json
 import ast
 import sys
 
-scaler_path = "./bin/scaler.dat"
-pca_path = "./bin/pca.dat"
-ncomponents_path = "./bin/ncomponents.dat"
+#global_path = sys.argv[1]
+scaler_path = "./src/pythonCode/bin/scaler.dat"
+pca_path = "./src/pythonCode/bin/pca.dat"
+ncomponents_path = "./src/pythonCode/bin/ncomponents.dat"
 
 scaler = pickle.load(open(scaler_path, "rb"))
 pca = pickle.load(open(pca_path, "rb"))
@@ -25,7 +26,7 @@ y = None
 
 def initialize_rtree():
     global idx
-    path = "./bin/rtree_index"
+    path = "./src/pythonCode/bin/rtree_index"
     p = index.Property()
     p.dimension = ncomponents #D
 
@@ -33,7 +34,7 @@ def initialize_rtree():
 
 def initiliaze_df():
     global collection, y
-    df_path = "./data/datasetv2.csv"
+    df_path = "./src/pythonCode/data/datasetv2.csv"
     #df_path ="./data/dataset_12800.csv"
     df = pd.read_csv(df_path)
     features = [str(i) for i in range(1, ncomponents+1)]
@@ -104,7 +105,7 @@ def parser(prev_result):
     result = []
     count = 1
     for elem in prev_result:
-        result.append("pythonCode/images/"+elem)
+        result.append("./src/pythonCode/images/"+elem)
         count+=1
 
     return result
@@ -120,19 +121,19 @@ def transform(input):
 
 #print("python: " + str(sys.argv[1]))
 str_input = transform(str(sys.argv[1]))
-image_path = "images/"+ str_input + "/" + str_input + "_0001.jpg" #./imagen/obama/obama_0001.jpg
+image_path = "./src/pythonCode/images/"+ str_input + "/" + str_input + "_0001.jpg" #./imagen/obama/obama_0001.jpg
 #print(image_path)
 #result = knearest(image_path, 8)
 #result = searchKNN_sequential(image_path, 8)
-start_time = datetime.now() 
-#result = range_seach(image_path, 10) # radio -> [9, 11] recomendable
-result = knearest(image_path, 8)
-time_elapsed = datetime.now() - start_time 
+# start_time = datetime.now() 
+# #result = range_seach(image_path, 10) # radio -> [9, 11] recomendable
+# result = knearest(image_path, 8)
+# time_elapsed = datetime.now() - start_time 
 #print('Time elapsed (hh:mm:ss.ms) {}'.format(time_elapsed))
-start_time = datetime.now() 
+# start_time = datetime.now() 
 result = searchKNN_sequential(image_path, 8)
 #result = range_seach(image_path, 10) # radio -> [9, 11] recomendable
-time_elapsed = datetime.now() - start_time 
+# time_elapsed = datetime.now() - start_time 
 #print('Time elapsed (hh:mm:ss.ms) {}'.format(time_elapsed))
 # os.remove('bin_test/rtree_index.dat')
 # os.remove('bin_test/rtree_index.idx')
@@ -140,5 +141,5 @@ jsonResult = parser(result)
 #print(jsonResult)
 
 #result_data = json.loads(jsonResult)
-with open('./result_db.json', 'w') as file:
+with open('./src/pythonCode/result_db.json', 'w') as file:
     json.dump(jsonResult, file)

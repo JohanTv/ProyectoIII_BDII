@@ -12,7 +12,7 @@ router.get('/', (req, res)=>{
 
 router.get('/posts', (req, res)=>{
     const data = JSON.parse(fs.readFileSync('./src/pythonCode/initial_db.json'));
-    res.json(data).data;
+    res.json(data);
 })
 
 router.get('/send', (req, res)=>{
