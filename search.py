@@ -27,8 +27,8 @@ def initialize_rtree(path_rtree = "./bin/rtree_index"):
 
 def initiliaze_df(path):
     global collection, y
-    # df_path = "./data/datasetv2.csv"
-    df_path = path
+    df_path = "./data/datasetv2.csv"
+    #df_path = path
     df = pd.read_csv(df_path)
     features = [str(i) for i in range(1, ncomponents+1)]
     collection = df.loc[:, features]
