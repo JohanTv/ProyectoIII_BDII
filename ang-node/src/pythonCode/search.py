@@ -1,4 +1,3 @@
-from PIL.Image import new
 from rtree import index
 import face_recognition
 import pickle
@@ -7,14 +6,10 @@ from datetime import datetime
 import numpy as np
 import os
 from queue import PriorityQueue
-import json
-import ast
-import sys
 
-#global_path = sys.argv[1]
-scaler_path = "./src/pythonCode/bin/scaler.dat"
-pca_path = "./src/pythonCode/bin/pca.dat"
-ncomponents_path = "./src/pythonCode/bin/ncomponents.dat"
+scaler_path = "./bin/scaler.dat"
+pca_path = "./bin/pca.dat"
+ncomponents_path = "./bin/ncomponents.dat"
 
 scaler = pickle.load(open(scaler_path, "rb"))
 pca = pickle.load(open(pca_path, "rb"))
@@ -24,18 +19,16 @@ idx = None
 collection = None
 y = None
 
-def initialize_rtree():
+def initialize_rtree(path_rtree = "./bin/rtree_index"):
     global idx
-    path = "./src/pythonCode/bin/rtree_index"
     p = index.Property()
     p.dimension = ncomponents #D
+    idx = index.Index(path_rtree, properties=p)
 
-    idx = index.Index(path, properties=p)
-
-def initiliaze_df():
+def initiliaze_df(path):
     global collection, y
-    df_path = "./src/pythonCode/data/datasetv2.csv"
-    #df_path ="./data/dataset_12800.csv"
+    df_path = "./data/datasetv2.csv"
+    #df_path = path
     df = pd.read_csv(df_path)
     features = [str(i) for i in range(1, ncomponents+1)]
     collection = df.loc[:, features]
@@ -70,15 +63,15 @@ def range_seach(image_path, radio):
             result.append(image_path)
     return result
 
-def knearest(image_path, k):
-    initialize_rtree()
+def knearest(image_path, k, path_r_tree):
+    initialize_rtree(path_r_tree)
     x_pca = parser_image(image_path)
     point = generate_point(x_pca)
     result = list(idx.nearest(coordinates=point, num_results=k, objects="raw"))
     return result
 
-def searchKNN_sequential(image_path, k):
-    initiliaze_df()
+def searchKNN_sequential(image_path, k, path):
+    initiliaze_df(path)
     query = parser_image(image_path)
     pq = PriorityQueue()
     nrows = collection.shape[0]
@@ -102,11 +95,16 @@ def searchKNN_sequential(image_path, k):
     return result
 
 def parser(prev_result):
-    result = []
+    result = '{'
     count = 1
     for elem in prev_result:
-        result.append("./src/pythonCode/images/"+elem)
-        count+=1
+        if count != len(prev_result):
+            result += '{"url": '+'"'+elem+'"'+'},'
+        else:
+            result += '{"url": '+'"'+elem+'"'+'}'
+        count += 1
+
+    result += '}'
 
     return result
 
