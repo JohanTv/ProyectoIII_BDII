@@ -19,18 +19,16 @@ idx = None
 collection = None
 y = None
 
-def initialize_rtree():
+def initialize_rtree(path_rtree = "./bin/rtree_index"):
     global idx
-    path = "./bin/rtree_index"
     p = index.Property()
     p.dimension = ncomponents #D
+    idx = index.Index(path_rtree, properties=p)
 
-    idx = index.Index(path, properties=p)
-
-def initiliaze_df():
+def initiliaze_df(path):
     global collection, y
-    df_path = "./data/datasetv2.csv"
-    #df_path ="./data/dataset_12800.csv"
+    # df_path = "./data/datasetv2.csv"
+    df_path = path
     df = pd.read_csv(df_path)
     features = [str(i) for i in range(1, ncomponents+1)]
     collection = df.loc[:, features]
@@ -65,15 +63,15 @@ def range_seach(image_path, radio):
             result.append(image_path)
     return result
 
-def knearest(image_path, k):
-    initialize_rtree()
+def knearest(image_path, k, path_r_tree):
+    initialize_rtree(path_r_tree)
     x_pca = parser_image(image_path)
     point = generate_point(x_pca)
     result = list(idx.nearest(coordinates=point, num_results=k, objects="raw"))
     return result
 
-def searchKNN_sequential(image_path, k):
-    initiliaze_df()
+def searchKNN_sequential(image_path, k, path):
+    initiliaze_df(path)
     query = parser_image(image_path)
     pq = PriorityQueue()
     nrows = collection.shape[0]
@@ -111,20 +109,20 @@ def parser(prev_result):
     return result
 
 
-image_path = "test/Roger_Moore_0004.jpg"
-#result = knearest(image_path, 8)
-#result = searchKNN_sequential(image_path, 8)
-start_time = datetime.now() 
-#result = range_seach(image_path, 10) # radio -> [9, 11] recomendable
-result = knearest(image_path, 8)
-time_elapsed = datetime.now() - start_time 
-#print('Time elapsed (hh:mm:ss.ms) {}'.format(time_elapsed))
-start_time = datetime.now() 
-result = searchKNN_sequential(image_path, 8)
-#result = range_seach(image_path, 10) # radio -> [9, 11] recomendable
-time_elapsed = datetime.now() - start_time 
-#print('Time elapsed (hh:mm:ss.ms) {}'.format(time_elapsed))
-# os.remove('bin_test/rtree_index.dat')
-# os.remove('bin_test/rtree_index.idx')
-jsonResult = parser(result)
-print(jsonResult)
+# image_path = "test/Roger_Moore_0004.jpg"
+# #result = knearest(image_path, 8)
+# #result = searchKNN_sequential(image_path, 8)
+# start_time = datetime.now() 
+# #result = range_seach(image_path, 10) # radio -> [9, 11] recomendable
+# result = knearest(image_path, 8)
+# time_elapsed = datetime.now() - start_time 
+# #print('Time elapsed (hh:mm:ss.ms) {}'.format(time_elapsed))
+# start_time = datetime.now() 
+# result = searchKNN_sequential(image_path, 8)
+# #result = range_seach(image_path, 10) # radio -> [9, 11] recomendable
+# time_elapsed = datetime.now() - start_time 
+# #print('Time elapsed (hh:mm:ss.ms) {}'.format(time_elapsed))
+# # os.remove('bin_test/rtree_index.dat')
+# # os.remove('bin_test/rtree_index.idx')
+# jsonResult = parser(result)
+# print(jsonResult)
