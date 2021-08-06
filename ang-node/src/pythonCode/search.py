@@ -1,3 +1,4 @@
+from PIL.Image import new
 from rtree import index
 import face_recognition
 import pickle
@@ -6,10 +7,14 @@ from datetime import datetime
 import numpy as np
 import os
 from queue import PriorityQueue
+import json
+import ast
+import sys
 
-scaler_path = "./bin/scaler.dat"
-pca_path = "./bin/pca.dat"
-ncomponents_path = "./bin/ncomponents.dat"
+#global_path = sys.argv[1]
+scaler_path = "./src/pythonCode/bin/scaler.dat"
+pca_path = "./src/pythonCode/bin/pca.dat"
+ncomponents_path = "./src/pythonCode/bin/ncomponents.dat"
 
 scaler = pickle.load(open(scaler_path, "rb"))
 pca = pickle.load(open(pca_path, "rb"))
@@ -19,16 +24,18 @@ idx = None
 collection = None
 y = None
 
-def initialize_rtree(path_rtree = "./bin/rtree_index"):
+def initialize_rtree():
     global idx
+    path = "./src/pythonCode/bin/rtree_index"
     p = index.Property()
     p.dimension = ncomponents #D
-    idx = index.Index(path_rtree, properties=p)
 
-def initiliaze_df(path):
+    idx = index.Index(path, properties=p)
+
+def initiliaze_df():
     global collection, y
-    df_path = "./data/datasetv2.csv"
-    #df_path = path
+    df_path = "./src/pythonCode/data/datasetv2.csv"
+    #df_path ="./data/dataset_12800.csv"
     df = pd.read_csv(df_path)
     features = [str(i) for i in range(1, ncomponents+1)]
     collection = df.loc[:, features]
@@ -63,15 +70,15 @@ def range_seach(image_path, radio):
             result.append(image_path)
     return result
 
-def knearest(image_path, k, path_r_tree):
-    initialize_rtree(path_r_tree)
+def knearest(image_path, k):
+    initialize_rtree()
     x_pca = parser_image(image_path)
     point = generate_point(x_pca)
     result = list(idx.nearest(coordinates=point, num_results=k, objects="raw"))
     return result
 
-def searchKNN_sequential(image_path, k, path):
-    initiliaze_df(path)
+def searchKNN_sequential(image_path, k):
+    initiliaze_df()
     query = parser_image(image_path)
     pq = PriorityQueue()
     nrows = collection.shape[0]
@@ -95,34 +102,44 @@ def searchKNN_sequential(image_path, k, path):
     return result
 
 def parser(prev_result):
-    result = '{'
+    result = []
     count = 1
     for elem in prev_result:
-        if count != len(prev_result):
-            result += '{"url": '+'"'+elem+'"'+'},'
-        else:
-            result += '{"url": '+'"'+elem+'"'+'}'
-        count += 1
-
-    result += '}'
+        result.append("./src/pythonCode/images/"+elem)
+        count+=1
 
     return result
 
+def transform(input):
+    x = input.split(" ")
+    new_input = ""
+    for i in x:
+        i.capitalize()
+        new_input = new_input + i + '_'
 
-# image_path = "test/Roger_Moore_0004.jpg"
-# #result = knearest(image_path, 8)
-# #result = searchKNN_sequential(image_path, 8)
+    return new_input[:-1]
+
+#print("python: " + str(sys.argv[1]))
+str_input = transform(str(sys.argv[1]))
+image_path = "./src/pythonCode/images/"+ str_input + "/" + str_input + "_0001.jpg" #./imagen/obama/obama_0001.jpg
+#print(image_path)
+#result = knearest(image_path, 8)
+#result = searchKNN_sequential(image_path, 8)
 # start_time = datetime.now() 
 # #result = range_seach(image_path, 10) # radio -> [9, 11] recomendable
 # result = knearest(image_path, 8)
 # time_elapsed = datetime.now() - start_time 
-# #print('Time elapsed (hh:mm:ss.ms) {}'.format(time_elapsed))
+#print('Time elapsed (hh:mm:ss.ms) {}'.format(time_elapsed))
 # start_time = datetime.now() 
-# result = searchKNN_sequential(image_path, 8)
-# #result = range_seach(image_path, 10) # radio -> [9, 11] recomendable
+result = searchKNN_sequential(image_path, 8)
+#result = range_seach(image_path, 10) # radio -> [9, 11] recomendable
 # time_elapsed = datetime.now() - start_time 
-# #print('Time elapsed (hh:mm:ss.ms) {}'.format(time_elapsed))
-# # os.remove('bin_test/rtree_index.dat')
-# # os.remove('bin_test/rtree_index.idx')
-# jsonResult = parser(result)
-# print(jsonResult)
+#print('Time elapsed (hh:mm:ss.ms) {}'.format(time_elapsed))
+# os.remove('bin_test/rtree_index.dat')
+# os.remove('bin_test/rtree_index.idx')
+jsonResult = parser(result)
+#print(jsonResult)
+
+#result_data = json.loads(jsonResult)
+with open('./src/pythonCode/result_db.json', 'w') as file:
+    json.dump(jsonResult, file)
