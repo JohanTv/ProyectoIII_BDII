@@ -108,36 +108,21 @@ def parser(prev_result):
 
     return result
 
-def transform(input):
-    x = input.split(" ")
-    new_input = ""
-    for i in x:
-        i.capitalize()
-        new_input = new_input + i + '_'
 
-    return new_input[:-1]
-
-#print("python: " + str(sys.argv[1]))
-str_input = transform(str(sys.argv[1]))
-image_path = "./src/pythonCode/images/"+ str_input + "/" + str_input + "_0001.jpg" #./imagen/obama/obama_0001.jpg
-#print(image_path)
-#result = knearest(image_path, 8)
-#result = searchKNN_sequential(image_path, 8)
+# image_path = "test/Roger_Moore_0004.jpg"
+# #result = knearest(image_path, 8)
+# #result = searchKNN_sequential(image_path, 8)
 # start_time = datetime.now() 
 # #result = range_seach(image_path, 10) # radio -> [9, 11] recomendable
 # result = knearest(image_path, 8)
 # time_elapsed = datetime.now() - start_time 
-#print('Time elapsed (hh:mm:ss.ms) {}'.format(time_elapsed))
+# #print('Time elapsed (hh:mm:ss.ms) {}'.format(time_elapsed))
 # start_time = datetime.now() 
-result = searchKNN_sequential(image_path, 8)
-#result = range_seach(image_path, 10) # radio -> [9, 11] recomendable
+# result = searchKNN_sequential(image_path, 8)
+# #result = range_seach(image_path, 10) # radio -> [9, 11] recomendable
 # time_elapsed = datetime.now() - start_time 
-#print('Time elapsed (hh:mm:ss.ms) {}'.format(time_elapsed))
-# os.remove('bin_test/rtree_index.dat')
-# os.remove('bin_test/rtree_index.idx')
-jsonResult = parser(result)
-#print(jsonResult)
-
-#result_data = json.loads(jsonResult)
-with open('./src/pythonCode/result_db.json', 'w') as file:
-    json.dump(jsonResult, file)
+# #print('Time elapsed (hh:mm:ss.ms) {}'.format(time_elapsed))
+# # os.remove('bin_test/rtree_index.dat')
+# # os.remove('bin_test/rtree_index.idx')
+# jsonResult = parser(result)
+# print(jsonResult)
