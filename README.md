@@ -1,4 +1,7 @@
 # ProyectoIII_BDII
+
+#[NOTA IMPORTANTE] El algoritmo con la versión web hecha en nodejs + express y angular se encuentra en la rama 'dev'.
+
 ## Integrantes
 
 | Nombre y Apellidos | Código de alumno |
