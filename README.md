@@ -3,10 +3,13 @@
 
 | Nombre y Apellidos | Código de alumno |
 |-|-|
-|Johan Tanta Villanueva |  |
+|Johan Tanta Villanueva | 201810605 |
 |Jorge Nicho Galagarza	| 201810205 |
 |Andres Riveros Soto    | 201810017 |
 
+
+## Introducción
+En este presente proyecto, se implementó una base de datos multimedia de imágenes. Asimismo, se utilizó una gran colección con más de 13 mil imágenes de rostros de personas, obtenidos en la [página](http://vis-www.cs.umass.edu/lfw/) de University of Massachusetts. Para la indexación eficiente de las imágenes se utilizó el R-tree como estructura de datos. Además, se utilizó la librería [Face Recognition](https://face-recognition.readthedocs.io/en/latest/readme.html) de python la cual nos brinda los vectores carácteristicos de los rostros que se identifica en la imagen.
 
 ##  Frontend
 Se elaboró un motor de búsqueda en el se visualiza un buscador y una tabla de resultados JSON, que representa las imagenes similares.
@@ -217,26 +220,85 @@ En una tabla del html, llamamos a cada elemento del JSON para que en cada fila i
   </table>
 ```
 
+## Face Recognition
+Esta librería identifica los rostros y devuelve el vector característico de cada uno de ellos con las siguientes líneas de código.
 
-## RTree
+```
+import face_recognition
+picture = face_recognition.load_image_file(image_path)
+all_face_encodings = face_recognition.face_encodings(picture)
+```
+Asimismo, el tamaño del vector característico del rostro es 128.
 
-Con las ayuda de la libreria Rtree creamos los indices Rtree para cada muestra de fotos. El indexfile es creado desde creation_rtree.ipynb, va a generar el archivo rtree_index. Este archivo servira para cargar el Rtree a memoria al momento de realizar las búsquedas. 
+## R-tree
+Se utilizó la librería [RTree](https://rtree.readthedocs.io/en/latest/) la cual tiene implementado la estructurado de datos propuesta en el lenguaje de Python. Debido a que el tamaño del vector característico de los rostros es 128, ocasiona que la estructura de datos tenga una alta dimensionalidad lo cual reduce la eficiencia de la misma. Observamos que estamos en presencia con el problema de la **maldición de la dimensionalidad** que reduce el performance del R-tree. Para evitar que se degrade el performance de la estructura utilizamos una de las técnicas para reducir la dimensionalidad, en este caso nos apoyamos de **Principal Component Analysis** (PCA).
 
-## Sequential
-Creamos dataset_{size}.csv para cierta cantidad de imágenes y se encuentra en la carpeta data. A través de estos archivos que contienen el vector característico y la dirección de la foto resultante generamos los rtree_index_{size}. 
+## PCA
+Utilizamos la librería [scikit-learn](), la cual nos proporciona la clase [PCA](https://scikit-learn.org/stable/modules/generated/sklearn.decomposition.PCA.html) que se estaría encargando de reducir la dimensionalidad del dataset. Para ello, se procede a ejecutar los siguientes pasos:
+
+* Obtener archivo .csv donde se guarde los vectores característicos de los rostros.
+* Luego, se procede a estandarizar los datos con ayuda de la clase *StandardScaler*, proporcionada de la misma librería. Por dentro, elimina la media y escala los datos de forma que su varianza sea igual a 1.
+```
+from sklearn.preprocessing import StandardScaler
+scaler = StandardScaler()
+scaler.fit(x)
+x_scaled = scaler.transform(x)
+```
+* Después, se instancia la clase *PCA* con parámetros con finalidad de reducir la dimensionalidad sin tener mucha pérdida de información y se entrena con nuestro dataset.
+```
+from sklearn.decomposition import PCA
+pca = PCA(.99999, svd_solver ='full')
+pca.fit(x_scaled)
+ncomponents = len(pca.components_)
+```
+* Posteriormente, reducimos la dimensionalidad de nuestro dataset
+```
+x_pca = pca.transform(x_scaled)
+```
+* Finalmente, guardamos nuestro nuevo dataset y los modelos entrenados como el *PCA* y *StandardScaler*.
+
+Este proceso se encuentra implementado en nuestro jupyter notebook **dimensionality_reduction.ipynb**.
+
+## Base de datos
+Luego de obtener el dataset final, creamos nuestro índice con la dimensionalidad final:
+```
+p = index.Property()
+p.dimension = ncomponents
+idx = index.Index(path, properties=p)
+```
+Finalmente, se inserta en nuestro R-tree como está indicado en la documentación:
+```
+idx.insert(i, point, obj=image)
+```
+
+Este proceso se encuentra implementado en nuestro jupyter notebook **creation_rtree.ipynb**.
+
+### Parser de la imagen
+Antes de responder la consulta sobre las imagenes con mayor similitud a partir de una. Se realizar un parseo al input, lo cual se apoya de los modelos entrenados que fueron guardados antes.
+```
+scaler = pickle.load(open(scaler_path, "rb"))
+pca = pickle.load(open(pca_path, "rb"))
+def parser_image(image_path):
+    picture = face_recognition.load_image_file(image_path)    
+    all_face_encodings = face_recognition.face_encodings(picture)
+    x = generate_df(all_face_encodings)
+    x_scaled = scaler.transform(x)
+    x_pca = pca.transform(x_scaled)
+    return x_pca[0]
+```
 
 ## Pruebas Funcionales KNN Search
 
-Se implemento dos tipos de funciones para la busqueda KNN, el primero es el KNN-sequential y el segundo es el Knn-Rtree. Ambas funciones se encuentran dentro del archivo search.py. 
+La finalidad de las pruebas es comparar el método `knearest` brindada por la misma clase R-tree con la implementación de una búsqueda secuencial de KNN apoyada de una cola de prioridad. Ambos se encuentran implementadas en el archivo search.py. 
 
-Por un lado, para  la busqueda Knn-Rtree se va a cargar a disco el archivo Rtree_index.idx  con la ayuda de la libreria Rtree . Se va a llamar al metodo `nearest` para encontrar los k mas cercanos, y luego en el archivo result_db.json se va a obtener la direccion de los fotos resultantes.
+Por un lado, para  la busqueda KNN-Rtree se va a cargar a disco el archivo Rtree_index.idx  con la ayuda de la libreria Rtree. Luego se hace la llamada al metodo `knearest` para encontrar los k mas cercanos, y luego en el archivo result_db.json se va a obtener la direccion de los fotos resultantes.
 
-Por otro lado , la busqueda Knn Sequential, va a carga el archivo dataset_{size}.csv. Los objetos se van a introducir dentro un `min-heap` de tamaño k para obtener los k mas cercanos. 
-
-
-Para las pruebas funcionales del KNN Search, la variable k tomó el valor de 8 . Se hizo el testing para cada tamano de imagenes, luego se grafico los tiempos del KNN tree y KNN Sequential
+Por otro lado, la busqueda Knn Sequential, va a carga el archivo dataset_{size}.csv. Los objetos se van a introducir dentro un `min-heap` de tamaño k para obtener los k mas cercanos. 
 
 
+Para las pruebas funcionales del KNN Search, la variable k tomó el valor de 8. Se hizo el testing para cada tamano de imagenes, luego se grafico los tiempos del KNN tree y KNN Sequential
+
+### Gráfica
 
 | Test  | Size  |KNN - Rtree | KNN- Secuencial| 
 | :------------ |:---------------:| -----:| ------:|
@@ -250,3 +312,9 @@ Para las pruebas funcionales del KNN Search, la variable k tomó el valor de 8 .
 | 8 | 12800 | 0.1453 seconds | 2.3845 seconds|
 
 ![imagen1](test/grafica_knn_search.png)
+
+## Conclusiones
+
+- La implementación del KNN secuencial obtiene los mismos resultados del método `knearest` del R-tree. 
+- A pesar de implementar un KNN secuencial apoyada de una cola de prioridad, este tiene un menor performance a comparación del método `knearest`.
+- A mayor cantidad de datos, el método `knearest` resulta ser mucho mejor por lo que tiene una gran escabalidad de datos. 
