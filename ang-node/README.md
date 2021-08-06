@@ -1,27 +1,42 @@
-# AngNode
+# ProyectoIII_BDII
+## Integrantes
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 11.0.1.
+| Nombre y Apellidos | Código de alumno |
+|-|-|
+|Johan Tanta Villanueva |  |
+|Jorge Nicho Galagarza	| 201810205 |
+|Andres Riveros Soto    | 201810017 |
 
-## Development server
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The app will automatically reload if you change any of the source files.
+## RTree
 
-## Code scaffolding
+Con las ayuda de la libreria Rtree creamos los indices Rtree para cada muestra de fotos. El indexfile es creado desde creation_rtree.ipynb, va a generar el archivo rtree_index. Este archivo servira para cargar el Rtree a memoria al momento de realizar las búsquedas. 
 
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
+## Sequential
+Creamos dataset_{size}.csv para cierta cantidad de imágenes y se encuentra en la carpeta data. A través de estos archivos que contienen el vector característico y la dirección de la foto resultante generamos los rtree_index_{size}. 
 
-## Build
+## Pruebas Funcionales KNN Search
 
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory. Use the `--prod` flag for a production build.
+Se implemento dos tipos de funciones para la busqueda KNN, el primero es el KNN-sequential y el segundo es el Knn-Rtree. Ambas funciones se encuentran dentro del archivo search.py. 
 
-## Running unit tests
+Por un lado, para  la busqueda Knn-Rtree se va a cargar a disco el archivo Rtree_index.idx  con la ayuda de la libreria Rtree . Se va a llamar al metodo `nearest` para encontrar los k mas cercanos, y luego en el archivo result_db.json se va a obtener la direccion de los fotos resultantes.
 
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
+Por otro lado , la busqueda Knn Sequential, va a carga el archivo dataset_{size}.csv. Los objetos se van a introducir dentro un `min-heap` de tamaño k para obtener los k mas cercanos. 
 
-## Running end-to-end tests
 
-Run `ng e2e` to execute the end-to-end tests via [Protractor](http://www.protractortest.org/).
+Para las pruebas funcionales del KNN Search, la variable k tomó el valor de 8 . Se hizo el testing para cada tamano de imagenes, luego se grafico los tiempos del KNN tree y KNN Sequential
 
-## Further help
 
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.io/cli) page.
+
+| Test  | Size  |KNN - Rtree | KNN- Secuencial| 
+| :------------ |:---------------:| -----:| ------:|
+| 1 | 100 |  0.1969 seconds|  0.1813 seconds |
+| 2 | 200 |  0.0787 seconds | 0.2201 seconds|
+| 3 | 400 |  0.0793 seconds| 0.1625 seconds  |
+| 4 | 800 |  0.1285 seconds |  0.2302 seconds |
+| 5 | 1600 | 0.0825 seconds  |  0.395 seconds|
+| 6 | 3200 | 0.0918 seconds| 0.6639 seconds |
+| 7 | 6400 | 0.1104 seconds | 1.2723 seconds |
+| 8 | 12800 | 0.1453 seconds | 2.3845 seconds|
+
+![imagen1](test/grafica_knn_search.png)
