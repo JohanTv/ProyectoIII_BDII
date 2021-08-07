@@ -1,7 +1,5 @@
 # ProyectoIII_BDII
 
-#[NOTA IMPORTANTE] El algoritmo con la versión web hecha en nodejs + express y angular se encuentra en la rama 'dev'.
-
 ## Integrantes
 
 | Nombre y Apellidos | Código de alumno |
@@ -10,6 +8,9 @@
 |Jorge Nicho Galagarza	| 201810205 |
 |Andres Riveros Soto    | 201810017 |
 
+
+#### Ejecución del programa
+Dirigirse a la carpeta ang-node/ y ejecutar el siguiente comando: `sh run.sh`
 
 ## Introducción
 En este presente proyecto, se implementó una base de datos multimedia de imágenes. Asimismo, se utilizó una gran colección con más de 13 mil imágenes de rostros de personas, obtenidos en la [página](http://vis-www.cs.umass.edu/lfw/) de University of Massachusetts. Para la indexación eficiente de las imágenes se utilizó el R-tree como estructura de datos. Además, se utilizó la librería [Face Recognition](https://face-recognition.readthedocs.io/en/latest/readme.html) de python la cual nos brinda los vectores carácteristicos de los rostros que se identifica en la imagen.
