@@ -102,7 +102,7 @@ def parser(prev_result):
     result = []
     count = 1
     for elem in prev_result:
-        result.append("./src/pythonCode/images/"+elem)
+        result.append("./pythonCode/images/"+elem)
         count+=1
 
     return result

@@ -31,7 +31,7 @@ app.post('/send/submit', urlencodedParser, function(req, res){
     const obj = req.body;
     console.log(obj.word)
     const spawn = require('child_process').spawn;
-    const process = spawn('python3', ['./src/pythonCode/search.py', obj.word]);
+    const process = spawn('python3', ['./src/pythonCode/frontend.py', obj.word]);
 
     process.stdout.on('data', data => {
         console.log("dentro");
